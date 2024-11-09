@@ -52,7 +52,7 @@ def descargar_archivo_remoto():
     except Exception as e:
         print(f"Error al conectar o descargar el archivo: {e}")
 
-@app.route('/descargar')
+@app.route('/api/descargar')
 def descargar():
     """Ruta para manejar la descarga del archivo"""
     # Solo intentamos descargar el archivo remoto una vez si no existe localmente
