@@ -68,6 +68,6 @@ def descargar():
     # Retornamos el archivo como adjunto para descarga
     return send_file(archivo_local, as_attachment=True)
 
-if __name__ == '__main__':
-    # Iniciar el servidor HTTP en el puerto 5000
-    app.run(debug=True, port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
