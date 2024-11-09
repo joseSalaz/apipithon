@@ -1,6 +1,7 @@
 import paramiko
 import os
 from flask import Flask, send_file, after_this_request
+from pathlib import Path
 
 app = Flask(__name__)
 
@@ -10,8 +11,12 @@ port = 22
 username = 'natureza_anon'
 password = '(123456)'
 
-# Obtener la ruta de la carpeta "Descargas" en el sistema Windows
-descargas_path = os.path.join(os.environ['USERPROFILE'], 'Downloads')
+# Obtener la ruta de la carpeta "Descargas" de forma más general
+descargas_path = str(Path.home() / 'Downloads')  # Usamos Path.home() para obtener la ruta del directorio home
+
+# Si no existe la carpeta "Downloads", usar una ruta por defecto en el servidor
+if not os.path.exists(descargas_path):
+    descargas_path = '/tmp'  # Ruta alternativa en servidores tipo Linux
 
 # Ruta donde se guardará el archivo localmente en la carpeta "Descargas"
 archivo_local = os.path.join(descargas_path, 'JSalazar.xlsx')  # Guardar en "Descargas"
