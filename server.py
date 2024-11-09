@@ -1,6 +1,6 @@
 import paramiko
-from flask import Flask, send_file
 import os
+from flask import Flask, send_file, after_this_request
 
 app = Flask(__name__)
 
@@ -10,14 +10,17 @@ port = 22
 username = 'natureza_anon'
 password = '(123456)'
 
-# Ruta donde se guardará el archivo localmente en el sistema Windows
-archivo_local = 'e:/chamba/JSalazar.xlsx'  # Cambiar la ruta aquí
+# Obtener la ruta de la carpeta "Descargas" en el sistema Windows
+descargas_path = os.path.join(os.environ['USERPROFILE'], 'Downloads')
+
+# Ruta donde se guardará el archivo localmente en la carpeta "Descargas"
+archivo_local = os.path.join(descargas_path, 'JSalazar.xlsx')  # Guardar en "Descargas"
 
 # Ruta del archivo en el servidor remoto
 archivo_remoto = 'JSalazar.xlsx'
 
 def descargar_archivo_remoto():
-    # Conexión SSH para descargar el archivo
+    """Función para descargar el archivo desde el servidor SSH al equipo local"""
     try:
         # Crear el cliente SSH
         client = paramiko.SSHClient()
@@ -46,10 +49,18 @@ def descargar_archivo_remoto():
 
 @app.route('/descargar')
 def descargar():
-    # Descargar el archivo desde el servidor remoto
-    descargar_archivo_remoto()
+    """Ruta para manejar la descarga del archivo"""
+    # Solo intentamos descargar el archivo remoto una vez si no existe localmente
+    if not os.path.exists(archivo_local):
+        descargar_archivo_remoto()
 
-    # Retornar el archivo descargado para que se pueda descargar via HTTP
+    # Aseguramos que la respuesta no sea cacheada por el navegador
+    @after_this_request
+    def no_cache(response):
+        response.cache_control.no_store = True
+        return response
+
+    # Retornamos el archivo como adjunto para descarga
     return send_file(archivo_local, as_attachment=True)
 
 if __name__ == '__main__':
